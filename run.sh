@@ -1,4 +1,4 @@
 #!/bin/bash
-npm run build
 clear
+npm run build
 node dist/cli.js

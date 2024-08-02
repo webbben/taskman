@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { ListItem } from "../../types.js";
-import { Text, useInput } from "ink";
+import { Box, useInput } from "ink";
+import MenuItem from "./MenuItem.js";
 
 export interface MenuProps {
     items: ListItem[]
@@ -38,14 +39,12 @@ export default function Menu({items}: MenuProps) {
 	});
 
     return (
-        <>
+        <Box flexDirection="column">
         { items.map((li, i) => {
             return (
-                <Text 
-                    key={"op" + i}
-                    color={listIndex == i ? "green" : "gray"}>{`${i+1}: ${li.name}`}</Text>
+                <MenuItem key={"menu_"+i} item={li} index={i} selected={i == listIndex} />
             );
         })}
-        </>
+        </Box>
     );
 }

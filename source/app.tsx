@@ -1,35 +1,16 @@
 import React, { useState } from 'react';
-import {Box, Text, useInput} from 'ink';
-import { ListItem } from './types.js';
-import Menu from './components/menu/Menu.js';
-
-
+import MainMenu from './components/MainMenu.js';
+import { Screens } from './types.js';
+import TaskView from './components/task-view/TaskView.js';
 
 export default function App() {
 
-	const listItems: ListItem[] = [
-		{
-			name: "View Tasks",
-			callback: () => { }
-		},
-		{
-			name: "About",
-			callback: () => {}
-		},
-		{
-			name: "Exit",
-			callback: process.exit
-		},
-		
-	]
+	const [screen, setScreen] = useState<Screens>(Screens.MainMenu);
 
 	return (
-		<Box flexDirection="column" padding={1}>
-			<Box flexDirection="row" paddingBottom={1}>
-				<Text color="green">{"TASKMAN"}</Text>
-				<Text color="blueBright">{" - a task manager app"}</Text>
-			</Box>
-			<Menu items={listItems} />
-		</Box>
+		<>
+			{ screen === Screens.MainMenu && <MainMenu setScreenFunc={setScreen} /> }
+			{ screen === Screens.TaskView && <TaskView setScreenFunc={setScreen} /> }
+		</>
 	);
 }
