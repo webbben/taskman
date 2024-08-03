@@ -122,8 +122,43 @@ function testAddTask(): TestResult {
     };
 }
 
+function testAddSubTask(): TestResult {
+    const tasksCopy = JSON.parse(JSON.stringify(tasks)) as Task[];
+    createNewTask(
+        tasksCopy,
+        "new subtask",
+        Priority.Low,
+        getFutureDate(1),
+        "a new task",
+        '3'
+    );
+
+    if (tasksCopy.length != 3) {
+        return {
+            pass: false,
+            errorMsg: `tasks length incorrect. exp: 3, got: ${tasksCopy.length}`
+        };
+    }
+    if (!tasksCopy[2].subTasks || !tasksCopy[2].subTasks[0]) {
+        return {
+            pass: false,
+            errorMsg: "subtask wasn't added to task 3"
+        };
+    }
+    if (tasksCopy[2].subTasks[0].title !== "new subtask") {
+        return {
+            pass: false,
+            errorMsg: `task title incorrect; exp: new subtask, got: ${tasksCopy[2].subTasks[0].title}`
+        };
+    }
+    return {
+        pass: true
+    };
+}
+
 const tests = [
-    testAddTask
+    testAddTask,
+    testAddSubTask
 ];
 
 for (const t of tests) {

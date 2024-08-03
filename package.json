@@ -35,22 +35,6 @@
 		"typescript": "^5.0.3",
 		"xo": "^0.53.1"
 	},
-	"ava": {
-		"extensions": [
-			"ts",
-			"tsx"
-		],
-		"nodeArguments": [
-			"--loader=ts-node/esm"
-		],
-		"require": [
-			"ts-node/register"
-		],
-		"files": [
-			"tests/**/*.test.ts",
-			"tests/**/*.test.tsx"
-		]
-	},
 	"xo": {
 		"extends": "xo-react",
 		"prettier": true,
