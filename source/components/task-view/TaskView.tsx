@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Box, Text, useInput } from "ink";
+import { Box, Text } from "ink";
 import { Priority, ScreenProps, Screens, Task } from "../../types.js";
 import { loadTasks } from "../../backend/tasks.js";
 import TaskBox from "./TaskBox.js";
+import NavigationController from "../util/NavigationController.js";
 
 export default function TaskView({setScreenFunc}:ScreenProps) {
 
     const [tasks, setTasks] = useState<Task[]>([]);
+    const [colIndex, setColIndex] = useState(0);
+    const [rowIndex, setRowIndex] = useState(0);
 
     useEffect(() => {
         (async () => {
@@ -14,62 +17,65 @@ export default function TaskView({setScreenFunc}:ScreenProps) {
         })()
     }, []);
 
-    useInput((input, key) => {
-		if (!key) return;
+    const highPriorityTasks = tasks.filter((t) => t.priority == Priority.High);
+    const medPriorityTasks = tasks.filter((t) => t.priority == Priority.Med);
+    const lowPriorityTasks = tasks.filter((t) => t.priority == Priority.Low);
 
-        if (input === 'q') {
-            setScreenFunc(Screens.MainMenu)
-        }
-	});
+    const rowIndexMax = colIndex == 0 ? highPriorityTasks.length :
+        colIndex == 1 ? medPriorityTasks.length : lowPriorityTasks.length;
+    
+    const selectedTaskID = colIndex == 0 ? highPriorityTasks[rowIndex]?.id :
+        colIndex == 1 ? medPriorityTasks[rowIndex]?.id : lowPriorityTasks[rowIndex]?.id;
 
     return (
-        <Box flexDirection="column" width={"100%"} height={"100%"} minHeight={25}>
-            <Text color={"magentaBright"}>Task Overview</Text>
-            <Box flexDirection="row" margin={1} gap={1} flexGrow={1} height={"100%"}>
-                <Box 
-                    flexDirection="column" 
-                    borderStyle={"round"} 
-                    borderColor={"magenta"}
-                    flexGrow={1}>
-                        { tasks.map((t, _) => {
-                            if (t.priority !== Priority.High) {
-                                return;
-                            }
-                            return (
-                                <TaskBox key={t.id} {...t} />
-                            );
-                        })}
+        <>
+            <NavigationController 
+                vertIndexSetter={setRowIndex}
+                vertIndexMax={rowIndexMax}
+                horizIndexSetter={setColIndex}
+                horizIndexMax={3} 
+                keyBindings={new Map<string, Function>([
+                    ['q', () => {setScreenFunc(Screens.MainMenu)}]
+                ])}/>
+            <Box flexDirection="column" width={"100%"} height={"100%"} minHeight={25}>
+                <Text color={"magentaBright"}>Task Overview</Text>
+                <Box flexDirection="row" margin={1} flexGrow={1} height={"100%"}>
+                    <Box 
+                        flexDirection="column" 
+                        borderStyle={"round"} 
+                        borderColor={"magenta"}
+                        flexGrow={1}>
+                            { highPriorityTasks.map((t, _) => {
+                                return (
+                                    <TaskBox selected={t.id === selectedTaskID} key={t.id} {...t} />
+                                );
+                            })}
+                    </Box>
+                    <Box 
+                        flexDirection="column" 
+                        borderStyle={"round"} 
+                        borderColor={"cyan"}
+                        flexGrow={1}>
+                            { medPriorityTasks.map((t, _) => {
+                                return (
+                                    <TaskBox selected={t.id === selectedTaskID} key={t.id} {...t} />
+                                );
+                            })}
+                    </Box>
+                    <Box 
+                        flexDirection="column" 
+                        borderStyle={"round"} 
+                        borderColor={"green"}
+                        flexGrow={1}>
+                            { lowPriorityTasks.map((t, _) => {
+                                return (
+                                    <TaskBox selected={t.id === selectedTaskID} key={t.id} {...t} />
+                                );
+                            })}
+                    </Box>
                 </Box>
-                <Box 
-                    flexDirection="column" 
-                    borderStyle={"round"} 
-                    borderColor={"cyan"}
-                    flexGrow={1}>
-                        { tasks.map((t, _) => {
-                            if (t.priority !== Priority.Med) {
-                                return;
-                            }
-                            return (
-                                <TaskBox key={t.id} {...t} />
-                            );
-                        })}
-                </Box>
-                <Box 
-                    flexDirection="column" 
-                    borderStyle={"round"} 
-                    borderColor={"green"}
-                    flexGrow={1}>
-                        { tasks.map((t, _) => {
-                            if (t.priority !== Priority.Low) {
-                                return;
-                            }
-                            return (
-                                <TaskBox key={t.id} {...t} />
-                            );
-                        })}
-                </Box>
+                <Text color="gray">Press "Q" to exit</Text>
             </Box>
-            <Text color="gray">Press "Q" to exit</Text>
-        </Box>
+        </>
     )
 }
