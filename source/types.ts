@@ -5,8 +5,10 @@ export interface ListItem {
 
 export type Task = {
     id: number
+    /** title of the task */
+    title: string
     /** description of the task */
-    desc: string
+    desc?: string
     /** whether or not this task is completed */
     completed: boolean
     /** the priority of this task */
@@ -15,10 +17,10 @@ export type Task = {
     dueDate: Date
 }
 
-enum Priority {
-    Low = 0,
-    Med,
-    High
+export enum Priority {
+    Low = 'low',
+    Med = 'medium',
+    High = 'high'
 }
 
 export enum Screens {

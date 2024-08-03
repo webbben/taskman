@@ -3,6 +3,7 @@ import React from 'react';
 import {render} from 'ink';
 //import meow from 'meow';
 import App from './app.js';
+import { ensureAppData } from './backend/tasks.js';
 
 /*
 const cli = meow(
@@ -24,5 +25,8 @@ const cli = meow(
 	},
 );
 */
+
+// ensure app data files exist
+ensureAppData();
 
 render(<App />);

@@ -14,14 +14,18 @@ export function ensureAppData() {
 }
 
 export function loadTasks(): Task[] {
-    const appDataPath = getAppDataPath();
-    if (!fs.existsSync(appDataPath)) {
+    const filename = getTasksJsonPath();
+    if (!fs.existsSync(filename)) {
         return [];
     }
 
     try {
-        const data = fs.readFileSync(appDataPath, 'utf-8');
-        return JSON.parse(data) as Task[];
+        const data = fs.readFileSync(filename, 'utf-8');
+        const taskData = JSON.parse(data) as Task[];
+        for (const task of taskData) {
+            task.dueDate = new Date(task.dueDate);
+        }
+        return taskData;
     } catch (err) {
         console.error("error reading or parsing tasks file:", err);
         return [];
@@ -30,9 +34,9 @@ export function loadTasks(): Task[] {
 
 export function saveTasks(tasks: Task[]) {
     ensureAppData();
-    const appDataPath = getAppDataPath();
+    const filename = getTasksJsonPath();
     try {
-        fs.writeFileSync(appDataPath, JSON.stringify(tasks, null, 2));
+        fs.writeFileSync(filename, JSON.stringify(tasks, null, 2));
     } catch (err) {
         console.error("error saving tasks:", err);
     }
@@ -51,4 +55,9 @@ function getAppDataPath(): string {
         default:
             throw new Error('Unsupported platform: ' + os.platform());
     }
+}
+
+function getTasksJsonPath(): string {
+    const appDataPath = getAppDataPath();
+    return path.join(appDataPath, "tasks.json");
 }
