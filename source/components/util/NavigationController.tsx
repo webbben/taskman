@@ -13,7 +13,7 @@ interface NavControllerProps {
 
 export default function NavigationController({keyBindings, vertIndexSetter, vertIndexMax, horizIndexSetter, horizIndexMax, wasd, onEnter}: NavControllerProps) {
     if ((vertIndexSetter && !vertIndexMax) || (horizIndexSetter && !horizIndexMax)) {
-        console.error("navController: indexSetter defined without corresponding index max");
+        //console.error("navController: indexSetter defined without corresponding index max");
     }
     
     const up = () => {
@@ -41,7 +41,7 @@ export default function NavigationController({keyBindings, vertIndexSetter, vert
 
         horizIndexSetter((i) => {
             if (i <= 0) {
-                return vertIndexMax || 0;
+                return horizIndexMax || 0;
             }
             return i - 1;
         });

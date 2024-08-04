@@ -37,6 +37,12 @@ export enum TaskType {
     MegaProject = 'mega-project'
 }
 
+export function TaskTypeToString(type: TaskType) {
+    return type == TaskType.Task ? "Task" :
+        type == TaskType.TaskGroup ? "Task Group" :
+        type == TaskType.Project ? "Project" : "Mega Project";
+}
+
 export enum Priority {
     Low = 'low',
     Med = 'medium',

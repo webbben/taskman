@@ -4,12 +4,14 @@ import { Priority, ScreenProps, Screens, Task } from "../../types.js";
 import { loadTasks } from "../../backend/tasks.js";
 import TaskBox from "./TaskBox.js";
 import NavigationController from "../util/NavigationController.js";
+import TaskDetails from "./TaskDetails.js";
 
 export default function TaskView({setScreenFunc}:ScreenProps) {
 
     const [tasks, setTasks] = useState<Task[]>([]);
     const [colIndex, setColIndex] = useState(0);
     const [rowIndex, setRowIndex] = useState(0);
+    const [openedTask, setOpenedTask] = useState<Task>()
 
     useEffect(() => {
         (async () => {
@@ -17,15 +19,62 @@ export default function TaskView({setScreenFunc}:ScreenProps) {
         })()
     }, []);
 
-    const highPriorityTasks = tasks.filter((t) => t.priority == Priority.High);
-    const medPriorityTasks = tasks.filter((t) => t.priority == Priority.Med);
-    const lowPriorityTasks = tasks.filter((t) => t.priority == Priority.Low);
+    const sortFunc = (a: Task, _b: Task) => {
+        if (a.completed) {
+            return 1;
+        }
+        return -1;
+    }
 
-    const rowIndexMax = colIndex == 0 ? highPriorityTasks.length :
-        colIndex == 1 ? medPriorityTasks.length : lowPriorityTasks.length;
-    
-    const selectedTaskID = colIndex == 0 ? highPriorityTasks[rowIndex]?.id :
-        colIndex == 1 ? medPriorityTasks[rowIndex]?.id : lowPriorityTasks[rowIndex]?.id;
+    const highPriorityTasks = tasks.filter((t) => t.priority == Priority.High);
+    highPriorityTasks.sort(sortFunc);
+    const medPriorityTasks = tasks.filter((t) => t.priority == Priority.Med);
+    medPriorityTasks.sort(sortFunc);
+    const lowPriorityTasks = tasks.filter((t) => t.priority == Priority.Low);
+    lowPriorityTasks.sort(sortFunc);
+
+    // when you switch columns, recalculate the max number of rows, since columns may have a different number of rows
+    useEffect(() => {
+        let maxIndex = 0;
+        switch (colIndex) {
+            case 0:
+                maxIndex = highPriorityTasks.length - 1;
+                break;
+            case 1:
+                maxIndex = medPriorityTasks.length - 1;
+                break;
+            case 2:
+                maxIndex = lowPriorityTasks.length - 1;
+                break;
+        }
+        // for some reason rowIndex can be set to -1 at first.
+        // I think this is because the ***PriorityTasks arrays may be empty at first?
+        // this is a work-around until I figure out a better way to manage these arrays/indices
+        maxIndex = Math.max(maxIndex, 0);
+        if (rowIndex > maxIndex) {
+            setRowIndex(maxIndex);
+        }
+    }, [colIndex]);
+
+    const rowIndexMax = colIndex == 0 ? highPriorityTasks.length - 1 :
+        colIndex == 1 ? medPriorityTasks.length - 1 : lowPriorityTasks.length - 1;
+
+    const onEnter = () => {
+        const selectedTask = colIndex == 1 ? highPriorityTasks[rowIndex] :
+            colIndex == 2 ? medPriorityTasks[rowIndex] : lowPriorityTasks[rowIndex]
+
+        if (!selectedTask) {
+            console.error("selected task not found!");
+            return;
+        }
+        setOpenedTask(selectedTask);
+    };
+
+    if (openedTask) {
+        return (
+            <TaskDetails {...openedTask} setOpenedTask={setOpenedTask} />
+        );
+    }
 
     return (
         <>
@@ -33,7 +82,8 @@ export default function TaskView({setScreenFunc}:ScreenProps) {
                 vertIndexSetter={setRowIndex}
                 vertIndexMax={rowIndexMax}
                 horizIndexSetter={setColIndex}
-                horizIndexMax={3} 
+                horizIndexMax={2}
+                onEnter={onEnter}
                 keyBindings={new Map<string, Function>([
                     ['q', () => {setScreenFunc(Screens.MainMenu)}]
                 ])}/>
@@ -45,9 +95,10 @@ export default function TaskView({setScreenFunc}:ScreenProps) {
                         borderStyle={"round"} 
                         borderColor={"magenta"}
                         flexGrow={1}>
-                            { highPriorityTasks.map((t, _) => {
+                            { highPriorityTasks.map((t, i) => {
+                                const selected = colIndex == 0 && rowIndex == i;
                                 return (
-                                    <TaskBox selected={t.id === selectedTaskID} key={t.id} {...t} />
+                                    <TaskBox selected={selected} key={t.id} {...t} />
                                 );
                             })}
                     </Box>
@@ -56,9 +107,10 @@ export default function TaskView({setScreenFunc}:ScreenProps) {
                         borderStyle={"round"} 
                         borderColor={"cyan"}
                         flexGrow={1}>
-                            { medPriorityTasks.map((t, _) => {
+                            { medPriorityTasks.map((t, i) => {
+                                const selected = colIndex == 1 && rowIndex == i;
                                 return (
-                                    <TaskBox selected={t.id === selectedTaskID} key={t.id} {...t} />
+                                    <TaskBox selected={selected} key={t.id} {...t} />
                                 );
                             })}
                     </Box>
@@ -67,15 +119,24 @@ export default function TaskView({setScreenFunc}:ScreenProps) {
                         borderStyle={"round"} 
                         borderColor={"green"}
                         flexGrow={1}>
-                            { lowPriorityTasks.map((t, _) => {
+                            { lowPriorityTasks.map((t, i) => {
+                                const selected = colIndex == 2 && rowIndex == i;
                                 return (
-                                    <TaskBox selected={t.id === selectedTaskID} key={t.id} {...t} />
+                                    <TaskBox selected={selected} key={t.id} {...t} />
                                 );
                             })}
                     </Box>
                 </Box>
-                <Text color="gray">Press "Q" to exit</Text>
+                <Box marginX={2} flexDirection="row" justifyContent="space-between">
+                    <Text color="cyanBright">"Enter" to edit task</Text>
+                    
+                    <Text color="greenBright">"Space" to complete task</Text>
+
+                    <Text color="redBright">"X" to delete task</Text>
+                    
+                    <Text color="gray">"Q" to exit</Text>
+                </Box>
             </Box>
         </>
-    )
+    );
 }
