@@ -74,6 +74,8 @@ export function createNewTask(currentTasks: Task[], title: string, priority: Pri
             console.error(`does parent task ${task.parentID} exist?`);
         }
     }
+    // save new tasks to disk
+    saveTasks(currentTasks);
 }
 
 function insertTask(tasks: Task[], newTask: Task): boolean {

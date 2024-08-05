@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Box, Text } from "ink";
 import { Priority, ScreenProps, Screens, Task } from "../../types.js";
-import { loadTasks } from "../../backend/tasks.js";
+import { createNewTask, loadTasks } from "../../backend/tasks.js";
 import TaskBox from "./TaskBox.js";
 import NavigationController from "../util/NavigationController.js";
 import TaskDetails from "./TaskDetails.js";
+import CreateTaskForm from "./CreateTaskForm.js";
 
 export default function TaskView({setScreenFunc}:ScreenProps) {
 
@@ -12,6 +13,7 @@ export default function TaskView({setScreenFunc}:ScreenProps) {
     const [colIndex, setColIndex] = useState(0);
     const [rowIndex, setRowIndex] = useState(0);
     const [openedTask, setOpenedTask] = useState<Task>()
+    const [creatingTask, setCreatingTask] = useState(false);
 
     useEffect(() => {
         (async () => {
@@ -76,6 +78,19 @@ export default function TaskView({setScreenFunc}:ScreenProps) {
         );
     }
 
+    if (creatingTask) {
+        return (
+            <CreateTaskForm onCreateTask={(ti) => {
+                (async () => {
+                    const tasksCopy = [...tasks];
+                    createNewTask(tasksCopy, ti.title, ti.priority, ti.dueDate, ti.desc);
+                    setTasks(tasksCopy);
+                })();
+                setCreatingTask(false);
+            }} />
+        )
+    }
+
     return (
         <>
             <NavigationController 
@@ -85,7 +100,8 @@ export default function TaskView({setScreenFunc}:ScreenProps) {
                 horizIndexMax={2}
                 onEnter={onEnter}
                 keyBindings={new Map<string, Function>([
-                    ['q', () => {setScreenFunc(Screens.MainMenu)}]
+                    ['q', () => {setScreenFunc(Screens.MainMenu)}],
+                    ['n', () => {setCreatingTask(true)}]
                 ])}/>
             <Box flexDirection="column" width={"100%"} height={"100%"} minHeight={25}>
                 <Text color={"magentaBright"}>Task Overview</Text>
@@ -95,39 +111,41 @@ export default function TaskView({setScreenFunc}:ScreenProps) {
                         borderStyle={"round"} 
                         borderColor={"magenta"}
                         flexGrow={1}>
-                            { highPriorityTasks.map((t, i) => {
+                            { highPriorityTasks.length > 0 ? highPriorityTasks.map((t, i) => {
                                 const selected = colIndex == 0 && rowIndex == i;
                                 return (
                                     <TaskBox selected={selected} key={t.id} {...t} />
                                 );
-                            })}
+                            }) : <Box margin={1}><Text color={"gray"}>No tasks</Text></Box>}
                     </Box>
                     <Box 
                         flexDirection="column" 
                         borderStyle={"round"} 
                         borderColor={"cyan"}
                         flexGrow={1}>
-                            { medPriorityTasks.map((t, i) => {
+                            { medPriorityTasks.length > 0 ? medPriorityTasks.map((t, i) => {
                                 const selected = colIndex == 1 && rowIndex == i;
                                 return (
                                     <TaskBox selected={selected} key={t.id} {...t} />
                                 );
-                            })}
+                            }) : <Box margin={1}><Text color={"gray"}>No tasks</Text></Box>}
                     </Box>
                     <Box 
                         flexDirection="column" 
                         borderStyle={"round"} 
                         borderColor={"green"}
                         flexGrow={1}>
-                            { lowPriorityTasks.map((t, i) => {
+                            { lowPriorityTasks.length > 0 ? lowPriorityTasks.map((t, i) => {
                                 const selected = colIndex == 2 && rowIndex == i;
                                 return (
                                     <TaskBox selected={selected} key={t.id} {...t} />
                                 );
-                            })}
+                            }) : <Box margin={1}><Text color={"gray"}>No tasks</Text></Box>}
                     </Box>
                 </Box>
                 <Box marginX={2} flexDirection="row" justifyContent="space-between">
+                    <Text color="magentaBright">"N" to create task</Text>
+
                     <Text color="cyanBright">"Enter" to edit task</Text>
                     
                     <Text color="greenBright">"Space" to complete task</Text>
