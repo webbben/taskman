@@ -35,7 +35,7 @@ export default function TaskView({setScreenFunc}:ScreenProps) {
             return 1;
         }
         return -1;
-    }
+    };
 
     const highPriorityTasks = tasks.filter((t) => t.priority == Priority.High);
     highPriorityTasks.sort(sortFunc);
@@ -161,7 +161,7 @@ export default function TaskView({setScreenFunc}:ScreenProps) {
         return (
             <SelectInput 
                 {...selectInputProps} />
-        )
+        );
     }
 
     if (openedTask) {

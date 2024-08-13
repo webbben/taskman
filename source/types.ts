@@ -1,3 +1,4 @@
+
 export interface ListItem {
 	name: string
 	callback: Function
@@ -7,8 +8,6 @@ export type Task = {
     id: string
     /** title of the task */
     title: string
-    /** the type of this task; determined by its depth of sub-tasks */
-    type: TaskType
     /** description of the task */
     desc?: string
     /** whether or not this task is completed */
@@ -19,28 +18,31 @@ export type Task = {
     dueDate: Date
     /**
      * Sub-tasks to complete before this main task is considered complete.
-     * The number of levels of tasks below a given task (it's "depth") determines its "type":
-     * - depth 0: task
-     * - depth 1: task group
-     * - depth 2: project
-     * - depth 3: mega project
+     * There can only be a single layer of depth in subTasks - you can't have multiple nested subtasks.
      */
     subTasks?: Task[]
+    isSubtask: boolean
     /** ID of parent task, if one exists */
     parentID?: string
+    /** Category of this task */
+    category?: Category
 }
 
-export enum TaskType {
-    Task = 'task',
-    TaskGroup = 'task-group',
-    Project = 'project',
-    MegaProject = 'mega-project'
+export type Category = {
+    /** full name of category */
+    name: string
+    /** short abbreviation of the category name; a few capital letters */
+    label: string
+    /** color of the category tag */
+    color: CategoryColor
 }
 
-export function TaskTypeToString(type: TaskType) {
-    return type == TaskType.Task ? "Task" :
-        type == TaskType.TaskGroup ? "Task Group" :
-        type == TaskType.Project ? "Project" : "Mega Project";
+export enum CategoryColor {
+    red = "red",
+    blue = "blue",
+    green = "green",
+    orange = "orange",
+    purple = "purple"
 }
 
 export enum Priority {

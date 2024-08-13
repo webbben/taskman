@@ -1,6 +1,6 @@
 import { Box, Text } from "ink";
 import React from "react";
-import { Task, TaskTypeToString } from "../../types.js";
+import { Task } from "../../types.js";
 import SubTask from "./SubTask.js";
 
 interface TaskDetailsProps extends Task {
@@ -8,7 +8,7 @@ interface TaskDetailsProps extends Task {
     parentTask?: Task
 }
 
-export default function TaskDetails({title, desc, dueDate, subTasks, type, completed}: TaskDetailsProps) {
+export default function TaskDetails({title, desc, dueDate, subTasks, completed}: TaskDetailsProps) {
 
     return (
         <>
@@ -19,7 +19,6 @@ export default function TaskDetails({title, desc, dueDate, subTasks, type, compl
                     { completed && <Text>{" ✓"}</Text> }
 
                 </Text>
-                <Text>{TaskTypeToString(type)}</Text>
                 </Box>
                 <Text>{dueDate.toLocaleDateString()}</Text>
                 { desc && <Text>{desc}</Text> }

@@ -2,7 +2,7 @@ import os from 'os';
 import path from 'path';
 import fs from 'fs';
 import { randomBytes } from 'crypto';
-import { Priority, Task, TaskType } from '../types.js';
+import { Category, Priority, Task } from '../types.js';
 
 const appName = 'taskman';
 
@@ -88,12 +88,12 @@ export function subtaskCount(task: Task): number {
  * @param desc (OPT) description of new task
  * @param parentID (OPT) ID of parent task, if this is a sub-task
  */
-export function createNewTask(currentTasks: Task[], title: string, priority: Priority, dueDate: Date, desc?: string, parentID?: string) {
+export function createNewTask(currentTasks: Task[], title: string, priority: Priority, dueDate: Date, desc?: string, parentID?: string, category?: Category) {
     const task: Task = {
         title,
         priority,
         dueDate,
-        type: TaskType.Task,
+        isSubtask: !!parentID,
         completed: false,
         id: generateUID()
     };
@@ -103,6 +103,9 @@ export function createNewTask(currentTasks: Task[], title: string, priority: Pri
     }
     if (parentID) {
         task.parentID = parentID;
+    }
+    if (category) {
+        task.category = category;
     }
     if (!insertTask(currentTasks, task)) {
         console.error(`failed to insert task ${task.id}`);
@@ -225,4 +228,41 @@ function getAppDataPath(): string {
 function getTasksJsonPath(): string {
     const appDataPath = getAppDataPath();
     return path.join(appDataPath, "tasks.json");
+}
+
+function getCatJsonPath(): string {
+    const appDataPath = getAppDataPath();
+    return path.join(appDataPath, "categories.json");
+}
+
+export function loadCategories(): Category[] {
+    const filename = getCatJsonPath();
+    if (!fs.existsSync(filename)) {
+        return [];
+    }
+
+    try {
+        const data = fs.readFileSync(filename, 'utf-8');
+        const catData = JSON.parse(data) as Category[];
+        return catData;
+    } catch (err) {
+        console.error("error reading or parsing categories file:", err);
+        return [];
+    }
+}
+
+export function saveCategories(cats: Category[]) {
+    ensureAppData();
+    const filename = getCatJsonPath();
+    const categories = cats.filter((c) => c.name != "None");
+    try {
+        fs.writeFileSync(filename, JSON.stringify(categories, null, 2));
+    } catch (err) {
+        console.error("error saving categories:", err);
+    }
+}
+
+export function createNewCategory(currentCats: Category[], newCat: Category) {
+    currentCats.push(newCat);
+    saveCategories(currentCats);
 }
