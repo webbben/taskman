@@ -1,9 +1,12 @@
 import { Form, FormProps } from "ink-form";
 import React from "react";
 import { Priority } from "../../types.js";
+import { Text } from "ink";
+import NavigationController from "../util/NavigationController.js";
 
 interface CreateTaskFormProps {
     onCreateTask?: (task: CreatedTaskInfo) => void
+    quitForm: Function
 }
 
 type CreateTaskResult = {
@@ -22,7 +25,7 @@ type CreatedTaskInfo = {
     dueDate: Date
 }
 
-export default function CreateTaskForm({onCreateTask}: CreateTaskFormProps) {
+export default function CreateTaskForm({onCreateTask, quitForm}: CreateTaskFormProps) {
     const options = [
         { label: 'High', value: Priority.High },
         { label: 'Medium', value: Priority.Med },
@@ -42,13 +45,15 @@ export default function CreateTaskForm({onCreateTask}: CreateTaskFormProps) {
                             type: 'string',
                             name: 'title',
                             label: 'Title',
+                            required: true
                         },
                         {
                             type: 'select',
                             name: 'priority',
                             label: 'Priority',
                             options,
-                            initialValue: Priority.Med
+                            initialValue: Priority.Med,
+                            required: true
                         },
                         {
                             type: 'string',
@@ -64,19 +69,22 @@ export default function CreateTaskForm({onCreateTask}: CreateTaskFormProps) {
                             type: 'integer',
                             name: 'dueDateMonth',
                             label: 'Month',
-                            initialValue: today.getMonth() + 1 // I think this is zero based for some reason?
+                            initialValue: today.getMonth() + 1,
+                            required: true
                         },
                         {
                             type: 'integer',
                             name: 'dueDateDay',
                             label: 'Day',
-                            initialValue: today.getDate()
+                            initialValue: today.getDate(),
+                            required: true
                         },
                         {
                             type: 'integer',
                             name: 'dueDateYear',
                             label: 'Year',
-                            initialValue: today.getFullYear()
+                            initialValue: today.getFullYear(),
+                            required: true
                         },
                     ]
                 }
@@ -85,21 +93,28 @@ export default function CreateTaskForm({onCreateTask}: CreateTaskFormProps) {
     };
 
     return (
-        <Form 
-            {...formProps}
-            onSubmit={(result) => {
-                const r = result as CreateTaskResult;
-                const createdTaskInfo: CreatedTaskInfo = {
-                    title: r.title,
-                    desc: r.desc,
-                    priority: r.priority,
-                    dueDate: new Date(r.dueDateYear, r.dueDateMonth - 1, r.dueDateDay)
-                }
-                if (onCreateTask) {
-                    onCreateTask(createdTaskInfo);
-                } else {
-                    console.log(result);
-                }
-            }} />
+        <>
+            <NavigationController 
+                keyBindings={new Map<string, Function>([
+                    ['q', quitForm]
+                ])} />
+            <Form 
+                {...formProps}
+                onSubmit={(result) => {
+                    const r = result as CreateTaskResult;
+                    const createdTaskInfo: CreatedTaskInfo = {
+                        title: r.title,
+                        desc: r.desc,
+                        priority: r.priority,
+                        dueDate: new Date(r.dueDateYear, r.dueDateMonth - 1, r.dueDateDay)
+                    }
+                    if (onCreateTask) {
+                        onCreateTask(createdTaskInfo);
+                    } else {
+                        console.log(result);
+                    }
+                }} />
+            <Text color={"gray"}>Press "Q" to quit</Text>
+        </>
     );
 }

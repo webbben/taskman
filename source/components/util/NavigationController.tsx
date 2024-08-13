@@ -1,17 +1,18 @@
-import { useInput } from "ink";
+import { Key, useInput } from "ink";
 import React from "react";
 
 interface NavControllerProps {
-    keyBindings?: Map<string, Function>
+    keyBindings?: Map<string | Key, Function>
     vertIndexSetter?: React.Dispatch<React.SetStateAction<number>>
     vertIndexMax?: number
     horizIndexSetter?: React.Dispatch<React.SetStateAction<number>>
     horizIndexMax?: number
     wasd?: boolean
     onEnter?: Function
+    disabled?: boolean
 }
 
-export default function NavigationController({keyBindings, vertIndexSetter, vertIndexMax, horizIndexSetter, horizIndexMax, wasd, onEnter}: NavControllerProps) {
+export default function NavigationController({keyBindings, vertIndexSetter, vertIndexMax, horizIndexSetter, horizIndexMax, wasd, onEnter, disabled}: NavControllerProps) {
     if ((vertIndexSetter && !vertIndexMax) || (horizIndexSetter && !horizIndexMax)) {
         //console.error("navController: indexSetter defined without corresponding index max");
     }
@@ -58,8 +59,14 @@ export default function NavigationController({keyBindings, vertIndexSetter, vert
     }
 
     useInput((input, key) => {
+        if (disabled) return;
+
         if (keyBindings?.has(input)) {
             (keyBindings.get(input) || (() => {console.log(input + ": no function binding found")}))()
+            return
+        }
+        if (keyBindings?.has(key)) {
+            (keyBindings.get(key) || (() => {console.log(key + ": no function binding found")}))()
             return
         }
         if (key?.return && onEnter) {

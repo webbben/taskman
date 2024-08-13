@@ -43,6 +43,42 @@ export function saveTasks(tasks: Task[]) {
     }
 }
 
+export function deleteTask(taskToDelete: Task, taskList: Task[]): Task[] {
+    // if this is a subtask of another task, find the parent task and remove it from its subtasks.
+    if (taskToDelete.parentID) {
+        const success = findTaskAndApplyAction(taskToDelete.parentID, taskList, (t: Task) => {
+            if (!t.subTasks) {
+                console.error("delete task: parent task doesn't have a sub task?");
+                return;
+            }
+            if (t.subTasks.length == 1) {
+                t.subTasks = undefined;
+                return;
+            }
+            t.subTasks = t.subTasks.filter((t: Task) => t.id !== taskToDelete.id);
+        });
+        if (!success) {
+            console.log("failed to delete task");
+        }
+    } else {
+        taskList = taskList.filter((t: Task) => t.id !== taskToDelete.id);
+    }
+    saveTasks(taskList);
+    return taskList;
+}
+
+export function subtaskCount(task: Task): number {
+    if (!task.subTasks || task.subTasks.length == 0) {
+        return 0;
+    }
+    let count = 0;
+    for (const subtask of task.subTasks) {
+        count++;
+        count += subtaskCount(subtask);
+    }
+    return count;
+}
+
 /**
  * Creates a new task, inserts it into the given tasks list, and saves to the disk. The input tasks list will have the new task inserted into it.
  * @param currentTasks list of tasks we currently already have
@@ -92,6 +128,76 @@ function insertTask(tasks: Task[], newTask: Task): boolean {
 
         if (task.subTasks && insertTask(task.subTasks, newTask)) {
             return true;
+        }
+    }
+    return false;
+}
+
+export function completeTask(task: Task) {
+    recursiveTaskAction(task, (t: Task) => {
+        t.completed = true;
+        return true;
+    });
+}
+
+export function uncompleteTask(task: Task) {
+    recursiveTaskAction(task, (t: Task) => {
+        t.completed = false;
+        return true;
+    });
+}
+
+/**
+ * performs an action on all tasks below the given task recursively
+ * @param task task node to start from - all subtasks below will be recursively acted upon
+ * @param callbackAction action to apply to each task. if this callback action returns false, recursion will stop on the current branch.
+ * @returns 
+ */
+function recursiveTaskAction(task: Task, callbackAction: (t: Task) => boolean) {
+    const processSubtasks = callbackAction(task);
+    if (!processSubtasks) return;
+
+    if (task.subTasks) {
+        for (const subTask of task.subTasks) {
+            recursiveTaskAction(subTask, callbackAction);
+        }
+    }
+}
+
+/**
+ * finds a task in the taskList and applies a specified function to it.
+ * @param taskID ID of the task we are looking to apply a function to
+ * @param taskList 
+ * @param callbackAction function to apply to the task
+ * @returns true if task was successfully found and acted upon, or false if not.
+ */
+function findTaskAndApplyAction(taskID: string, taskList: Task[], callbackAction: (t: Task) => void): boolean {
+    for (const task of taskList) {
+        if (dfsTaskAction(task, taskID, callbackAction)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * find a specific task (under this branch) and apply an action to it. 
+ * @param task task node we will start searching from
+ * @param taskID task we are searching for
+ * @param callbackAction action to apply to the task once its found
+ * @returns true if the task has been found and had its action applied - which signals end of dfs.
+ */
+function dfsTaskAction(task: Task, taskID: string, callbackAction: (t: Task) => void): boolean {
+    if (task.id === taskID) {
+        callbackAction(task);
+        return true;
+    }
+
+    if (task.subTasks) {
+        for (const subTask of task.subTasks) {
+            if (dfsTaskAction(subTask, taskID, callbackAction)) {
+                return true;
+            }
         }
     }
     return false;
