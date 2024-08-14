@@ -3,21 +3,29 @@ import { Task } from "../../types.js";
 import React from "react";
 
 interface TaskBoxProps extends Task {
-    selected: boolean
+    selected?: boolean
 }
 
 export default function TaskBox({desc, title, completed, dueDate, selected}:TaskBoxProps) {
-    const overdue = dueDate.getDate() < new Date().getDate()
+    const overdue = dueDate.getDate() < new Date().getDate();
+
+    if (desc) {
+        if (desc.length > 100) {
+            desc = desc.substring(0, 100) + "...";
+        }
+    }
+
     return (
-        <Box 
-            marginLeft={1}
-            marginRight={1} 
+        <Box
             flexDirection="column"
             borderStyle={selected ? "round" : undefined}
-            padding={selected ? 0 : 1}>
-            <Text color={ completed ? "green" : "yellow" }>{title}{ completed && <Text>{" ✓"}</Text> }</Text>
+            padding={selected ? 0 : 1}
+            width={"100%"}>
+            <Box flexDirection="row" justifyContent="space-between">
+                <Text color={ completed ? "green" : "yellow" }>{title}{ completed && <Text>{" ✓"}</Text> }</Text>
+                <Text color={ overdue ? "red" : "cyan" }>{dueDate.toLocaleDateString()}</Text>
+            </Box>
             { desc && <Text>{desc}</Text> }
-            <Text color={ overdue ? "red" : "cyan" }>{dueDate.toLocaleDateString()}</Text>
         </Box>
     );
 }
