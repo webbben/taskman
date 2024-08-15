@@ -3,15 +3,16 @@ import React from "react";
 import { Task } from "../../types.js";
 
 interface SubTaskProps extends Task {
-
+    selected?: boolean
 }
 
-export default function SubTask({title, completed}: SubTaskProps) {
+export default function SubTask({title, completed, selected}: SubTaskProps) {
+    const color = selected ? "cyanBright" : completed ? "green" : "yellow";
     return (
-        <Box>
-            <Text color={completed ? "green" : "yellow" }>
-                <Text>{ completed ? "●" : "○" }{ ` ${title}` }</Text>
-            </Text>
-        </Box>
-    )
+            <Box marginBottom={1}>
+                <Text color={color}>
+                    <Text>{selected ? "> " : "  "}{completed ? "●" : "○"}{ ` ${title}` }</Text>
+                </Text>
+            </Box>
+    );
 }

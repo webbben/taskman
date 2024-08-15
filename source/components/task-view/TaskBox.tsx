@@ -6,7 +6,7 @@ interface TaskBoxProps extends Task {
     selected?: boolean
 }
 
-export default function TaskBox({desc, title, completed, dueDate, selected}:TaskBoxProps) {
+export default function TaskBox({desc, title, completed, dueDate, selected, subTasks}:TaskBoxProps) {
     const overdue = dueDate.getDate() < new Date().getDate();
 
     if (desc) {
@@ -26,6 +26,18 @@ export default function TaskBox({desc, title, completed, dueDate, selected}:Task
                 <Text color={ overdue ? "red" : "cyan" }>{dueDate.toLocaleDateString()}</Text>
             </Box>
             { desc && <Text>{desc}</Text> }
+            { subTasks && 
+                <Box flexDirection="row" justifyContent="space-between">
+                    <Text>
+                    { subTasks?.map((st, i) => {
+                        return (
+                            <Text key={"subtaskcircle_" + i} color={"greenBright"}>{st.completed ? " ● " : " ○ "}</Text>
+                        );
+                    })}
+                    </Text>
+                    <Text color="greenBright">{`(${subTasks.filter((t) => t.completed).length}/${subTasks.length})`}</Text>
+                </Box>
+            }
         </Box>
     );
 }

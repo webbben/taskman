@@ -1,6 +1,6 @@
 import { Form, FormProps } from "ink-form";
 import React, { useEffect, useState } from "react";
-import { Category, CategoryColor, Priority } from "../../types.js";
+import { Category, CategoryColor, Priority, Task } from "../../types.js";
 import { Text } from "ink";
 import NavigationController from "../util/NavigationController.js";
 import { createNewCategory, loadCategories } from "../../backend/tasks.js";
@@ -8,6 +8,7 @@ import { createNewCategory, loadCategories } from "../../backend/tasks.js";
 interface CreateTaskFormProps {
     onCreateTask?: (task: CreatedTaskInfo) => void
     quitForm: Function
+    tasks: Task[]
 }
 
 type CreateTaskResult = {
@@ -21,6 +22,7 @@ type CreateTaskResult = {
     newCategoryLabel?: string
     newCategoryColor?: CategoryColor
     category?: string
+    parentTask?: string
 }
 
 type CreatedTaskInfo = {
@@ -29,9 +31,10 @@ type CreatedTaskInfo = {
     desc?: string
     dueDate: Date
     category?: Category
+    parentTaskID?: string
 }
 
-export default function CreateTaskForm({onCreateTask, quitForm}: CreateTaskFormProps) {
+export default function CreateTaskForm({onCreateTask, quitForm, tasks}: CreateTaskFormProps) {
     const priorityOptions = [
         { label: 'High', value: Priority.High },
         { label: 'Medium', value: Priority.Med },
@@ -39,6 +42,9 @@ export default function CreateTaskForm({onCreateTask, quitForm}: CreateTaskFormP
     ];
     const colorOptions = Object.values(CategoryColor).map(color => ({
         label: color, value: color
+    }));
+    const parentTaskOptions = tasks.map((t) => ({
+        label: t.title, value: t.id
     }));
 
     const today = new Date();
@@ -83,6 +89,13 @@ export default function CreateTaskForm({onCreateTask, quitForm}: CreateTaskFormP
                             name: 'desc',
                             label: 'Description',
                         },
+                        {
+                            type: 'select',
+                            name: 'parentTask',
+                            label: 'Parent Task?',
+                            options: parentTaskOptions,
+                            description: 'To make this a sub-task of an existing task, choose the parent task here.'
+                        }
                     ]
                 },
                 {
@@ -172,6 +185,9 @@ export default function CreateTaskForm({onCreateTask, quitForm}: CreateTaskFormP
                                 }
                                 createNewCategory(categories || [], createdTaskInfo.category);
                             }
+                        }
+                        if (r.parentTask) {
+                            createdTaskInfo.parentTaskID = r.parentTask;
                         }
                         onCreateTask(createdTaskInfo);
                     } else {

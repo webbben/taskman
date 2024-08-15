@@ -136,17 +136,12 @@ function insertTask(tasks: Task[], newTask: Task): boolean {
     return false;
 }
 
-export function completeTask(task: Task) {
-    recursiveTaskAction(task, (t: Task) => {
-        t.completed = true;
-        return true;
-    });
-}
-
-export function uncompleteTask(task: Task) {
-    recursiveTaskAction(task, (t: Task) => {
-        t.completed = false;
-        return true;
+export function toggleCompleteTask(task: Task, tasks: Task[], comp: boolean) {
+    findTaskAndApplyAction(task.id, tasks, (t: Task) => {
+        recursiveTaskAction(t, (t1) => {
+            t1.completed = comp;
+            return true;
+        });
     });
 }
 
