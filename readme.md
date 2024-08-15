@@ -9,9 +9,28 @@ Future plans:
 ## Install
 
 ```bash
-$ npm install --global taskmonger
+npm install --global taskmonger
 ```
 
 ## Usage
 
 To use, simply enter `taskmonger` in your terminal to launch the application. You can enter Escape at any time to leave the application.
+
+## Uninstall
+
+use the usual npm commands to uninstall:
+
+```shell
+npm uninstall -g taskmonger
+```
+
+However, note that this application stores its app data (i.e. saved task data) to your disk in the usual app data path for your OS.
+The data will be saved in a folder called `taskman` (this app was originally called this until I realized the name is taken on npm).
+
+```shell
+# MacOS
+cd ~/Library/Application\ Support/taskman
+
+# Windows
+cd %APPDATA%\taskman
+```
