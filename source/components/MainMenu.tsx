@@ -24,7 +24,7 @@ export default function MainMenu({setScreenFunc}:ScreenProps) {
     return (
         <Box flexDirection="column" padding={1}>
 			<Box flexDirection="row" paddingBottom={1}>
-				<Text color="green">{"TASKMAN"}</Text>
+				<Text color="green">{"TaskMonger"}</Text>
 				<Text color="blueBright">{" - a task manager app"}</Text>
 			</Box>
 			<Menu items={listItems} />
