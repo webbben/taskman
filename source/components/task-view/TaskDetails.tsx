@@ -8,11 +8,23 @@ import Footer from "../util/Footer.js";
 interface TaskDetailsProps extends Task {
     closeTask: Function
     parentTask?: Task
+    completeTask: (t: Task) => void
 }
 
-export default function TaskDetails({title, desc, dueDate, subTasks, completed, closeTask}: TaskDetailsProps) {
+export default function TaskDetails({title, desc, dueDate, subTasks, completed, closeTask, completeTask}: TaskDetailsProps) {
 
     const [rowIndex, setRowIndex] = useState(0);
+
+    const getSelectedSubtask = () => {
+        if (!subTasks) return undefined;
+        return subTasks[rowIndex];
+    }
+
+    const completeSubTask = () => {
+        const subTask = getSelectedSubtask();
+        if (!subTask) return;
+        completeTask(subTask);
+    }
     
     return (
         <>
@@ -20,7 +32,8 @@ export default function TaskDetails({title, desc, dueDate, subTasks, completed, 
                 vertIndexSetter={setRowIndex}
                 vertIndexMax={subTasks?.length}
                 keyBindings={new Map<string, Function>([
-                    ['q', closeTask]
+                    ['q', closeTask],
+                    [' ', completeSubTask]
                 ])} />
             <Box margin={1} flexDirection="column">
                 <Box flexDirection="row" justifyContent="space-between">

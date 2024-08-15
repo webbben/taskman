@@ -143,6 +143,7 @@ export function toggleCompleteTask(task: Task, tasks: Task[], comp: boolean) {
             return true;
         });
     });
+    saveTasks(tasks);
 }
 
 /**

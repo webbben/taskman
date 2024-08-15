@@ -4,6 +4,7 @@ import {render} from 'ink';
 //import meow from 'meow';
 import App from './app.js';
 import { ensureAppData } from './backend/tasks.js';
+import { setUnmountFunction } from './appFuncs.js';
 
 /*
 const cli = meow(
@@ -29,4 +30,5 @@ const cli = meow(
 // ensure app data files exist
 ensureAppData();
 
-render(<App />);
+const { unmount } = render(<App />);
+setUnmountFunction(unmount);

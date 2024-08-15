@@ -1,5 +1,6 @@
 import { Key, useInput } from "ink";
 import React from "react";
+import { exit } from "../../backend/system.js";
 
 interface NavControllerProps {
     keyBindings?: Map<string | Key, Function>
@@ -60,6 +61,9 @@ export default function NavigationController({keyBindings, vertIndexSetter, vert
 
     useInput((input, key) => {
         if (disabled) return;
+
+        // global escape
+        if (key.escape) exit();
 
         if (keyBindings?.has(input)) {
             (keyBindings.get(input) || (() => {console.log(input + ": no function binding found")}))()

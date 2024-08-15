@@ -123,7 +123,10 @@ export default function TaskView({setScreenFunc}:ScreenProps) {
 
     if (openedTask) {
         return (
-            <TaskDetails {...openedTask} closeTask={() => setOpenedTask(undefined)} />
+            <TaskDetails 
+                {...openedTask} 
+                closeTask={() => setOpenedTask(undefined)}
+                completeTask={compTaskCallback} />
         );
     }
 

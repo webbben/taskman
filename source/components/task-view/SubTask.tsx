@@ -11,7 +11,7 @@ export default function SubTask({title, completed, selected}: SubTaskProps) {
     return (
             <Box marginBottom={1}>
                 <Text color={color}>
-                    <Text>{selected ? "> " : "  "}{completed ? "●" : "○"}{ ` ${title}` }</Text>
+                    <Text>{selected ? "> " : "  "}{completed ? "✓" : "○"}{ ` ${title}` }</Text>
                 </Text>
             </Box>
     );
