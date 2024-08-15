@@ -46,8 +46,7 @@ export default function SelectInput({prompt, options, valueCallback}: SelectInpu
                         const color = sel ? "cyanBright" : "white";
                         return (
                             <Box flexDirection="row" key={"selectInputOp" + i}>
-                                { sel && <Text color={color}>{"> "}</Text>}
-                                <Text color={color}>{op.label}</Text>
+                                <Text color={color}>{sel ? "> " : "  "}{op.label}</Text>
                             </Box>
                         );
                     })

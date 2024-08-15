@@ -1,12 +1,15 @@
 import { Box, Text } from "ink";
 import { Task } from "../../types.js";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 interface TaskBoxProps extends Task {
     selected?: boolean
 }
 
 export default function TaskBox({desc, title, completed, dueDate, selected, subTasks}:TaskBoxProps) {
+
+    const [blink, setBlink] = useState(true);
+
     const overdue = dueDate.getDate() < new Date().getDate();
 
     if (desc) {
@@ -15,10 +18,23 @@ export default function TaskBox({desc, title, completed, dueDate, selected, subT
         }
     }
 
+    useEffect(() => {
+        if (selected) {
+            const timer = setInterval(() => {
+                setBlink((b) => !b);
+            }, 2000);
+
+            return () => {
+                clearInterval(timer);
+            }
+        }
+        return;
+    }, [selected]);
+
     return (
         <Box
             flexDirection="column"
-            borderStyle={selected ? "round" : undefined}
+            borderStyle={selected ? (blink ? "round" : "bold") : undefined}
             padding={selected ? 0 : 1}
             width={"100%"}>
             <Box flexDirection="row" justifyContent="space-between">

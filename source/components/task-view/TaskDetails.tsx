@@ -30,7 +30,7 @@ export default function TaskDetails({title, desc, dueDate, subTasks, completed, 
         <>
             <NavigationController
                 vertIndexSetter={setRowIndex}
-                vertIndexMax={subTasks?.length}
+                vertIndexMax={subTasks ? subTasks.length - 1 : 0}
                 keyBindings={new Map<string, Function>([
                     ['q', closeTask],
                     [' ', completeSubTask]
@@ -60,7 +60,7 @@ export default function TaskDetails({title, desc, dueDate, subTasks, completed, 
                 }
                 <Footer
                 actionDescs={[
-                    { keyBind: "Q", shortDesc: "go back", color: "gray" },
+                    { keyBind: "Q", shortDesc: "back", color: "gray" },
                     { keyBind: "Space", shortDesc: "complete subtask", color: "greenBright" },
                     { keyBind: "X", shortDesc: "delete subtask", color: "red" },
                 ]} />

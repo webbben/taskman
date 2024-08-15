@@ -2,21 +2,22 @@ import React from "react";
 import { Box, Text } from "ink";
 import Menu from "./menu/Menu.js";
 import { ListItem, ScreenProps, Screens } from "../types.js";
+import { exit } from "../backend/system.js";
 
 
 export default function MainMenu({setScreenFunc}:ScreenProps) {
     const listItems: ListItem[] = [
 		{
-			name: "View Tasks",
+			name: "Current Tasks",
 			callback: () => { setScreenFunc(Screens.TaskView) }
 		},
 		{
-			name: "About",
-			callback: () => {}
+			name: "Past Tasks",
+			callback: () => { console.log("Past Tasks: coming soon!") }
 		},
 		{
 			name: "Exit",
-			callback: process.exit
+			callback: exit
 		},
 	]
 

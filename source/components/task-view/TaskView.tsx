@@ -24,27 +24,37 @@ export default function TaskView({setScreenFunc}:ScreenProps) {
 
     useEffect(() => {
         (async () => {
-            setTasks(loadTasks())
-        })()
+            const today = new Date();
+            const isSameDay = (d1: Date, d2: Date) => {
+                
+                return d1.getFullYear() === d2.getFullYear() &&
+                    d1.getMonth() === d2.getMonth() &&
+                    d1.getDate() === d2.getDate();
+            }
+            // load incomplete tasks, or completed tasks that are from today
+            setTasks(loadTasks().filter((t) => (t.completed && t.completionDate && isSameDay(t.completionDate, today)) || !t.completed));
+        })();
     }, []);
 
     useEffect(() => {
         setIndices();
     }, [tasks]);
 
-    const sortFunc = (a: Task, _b: Task) => {
-        if (a.completed) {
-            return 1;
+    const sortFunc = (a: Task, b: Task) => {
+        if (a.dueDate < b.dueDate) {
+            return -1;
         }
-        return -1;
+        return 1;
     };
 
-    const highPriorityTasks = tasks.filter((t) => t.priority == Priority.High);
+    const highPriorityTasks = tasks.filter((t) => t.priority == Priority.High && !t.completed);
     highPriorityTasks.sort(sortFunc);
-    const medPriorityTasks = tasks.filter((t) => t.priority == Priority.Med);
+    const medPriorityTasks = tasks.filter((t) => t.priority == Priority.Med && !t.completed);
     medPriorityTasks.sort(sortFunc);
-    const lowPriorityTasks = tasks.filter((t) => t.priority == Priority.Low);
+    const lowPriorityTasks = tasks.filter((t) => t.priority == Priority.Low && !t.completed);
     lowPriorityTasks.sort(sortFunc);
+    const completedTasks = tasks.filter((t) => t.completed);
+    completedTasks.sort(sortFunc);
 
     const deleteTaskCallback = (task: Task) => {
         const titleDisp = task.title.length > 15 ? task.title.substring(0, 15) + "..." : task.title;
@@ -157,7 +167,7 @@ export default function TaskView({setScreenFunc}:ScreenProps) {
 
     const handleChangeTab = (name: string) => {
         setActiveTabName(name);
-    }
+    };
 
     return (
         <>
@@ -167,6 +177,7 @@ export default function TaskView({setScreenFunc}:ScreenProps) {
                         <Tab name="highPriority">{" High " + (highPriorityTasks.length > 0 ? `(${highPriorityTasks.length})` : '')}</Tab>
                         <Tab name="medPriority">{" Med " + (medPriorityTasks.length > 0 ? `(${medPriorityTasks.length})` : '')}</Tab>
                         <Tab name="lowPriority">{" Low " + (lowPriorityTasks.length > 0 ? `(${lowPriorityTasks.length})` : '')}</Tab>
+                        <Tab name="completed">{" Comp " + (completedTasks.length > 0 ? `(${completedTasks.length})` : '')}</Tab>
                     </Tabs>
                 </Box>
                 { activeTabName == 'highPriority' && 
@@ -184,13 +195,18 @@ export default function TaskView({setScreenFunc}:ScreenProps) {
                         tabTasks={lowPriorityTasks} 
                         title="Low Priority Tasks"
                         {...passTabProps} /> }
+                { activeTabName == 'completed' && 
+                    <TaskTab 
+                        tabTasks={completedTasks} 
+                        title="Completed Tasks"
+                        {...passTabProps} /> }
                 
                 <Footer actionDescs={[
                     {shortDesc: "create task", keyBind: "N", color: "magentaBright"},
                     {shortDesc: "edit task", keyBind: "Enter", color: "cyanBright"},
                     {shortDesc: "complete task", keyBind: "Space", color: "greenBright"},
                     {shortDesc: "delete task", keyBind: "X", color: "redBright"},
-                    {shortDesc: "exit", keyBind: "Q", color: "gray"}
+                    {shortDesc: "back", keyBind: "Q", color: "gray"}
                 ]} />
             </Box>
         </>

@@ -23,8 +23,22 @@ export function loadTasks(): Task[] {
     try {
         const data = fs.readFileSync(filename, 'utf-8');
         const taskData = JSON.parse(data) as Task[];
+
+        // convert to correct formats, fix possible data corruptions or apply data-model updates, etc.
+        let patches = 0;
         for (const task of taskData) {
             task.dueDate = new Date(task.dueDate);
+            if (task.completed && !task.completionDate) {
+                console.error("warning: completed task doesn't have completion date. setting to today's date.");
+                task.completionDate = new Date();
+                patches++;
+            } else if (task.completionDate) {
+                task.completionDate = new Date(task.completionDate);
+            }
+            // if any bad data was fixed, save it to the disk
+            if (patches > 0) {
+                saveTasks(taskData);
+            }
         }
         return taskData;
     } catch (err) {
@@ -140,6 +154,7 @@ export function toggleCompleteTask(task: Task, tasks: Task[], comp: boolean) {
     findTaskAndApplyAction(task.id, tasks, (t: Task) => {
         recursiveTaskAction(t, (t1) => {
             t1.completed = comp;
+            t1.completionDate = comp ? new Date() : undefined;
             return true;
         });
     });

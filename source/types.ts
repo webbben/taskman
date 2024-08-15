@@ -12,6 +12,8 @@ export type Task = {
     desc?: string
     /** whether or not this task is completed */
     completed: boolean
+    /** the date this task was completed */
+    completionDate?: Date
     /** the priority of this task */
     priority: Priority
     /** due date of the task */
