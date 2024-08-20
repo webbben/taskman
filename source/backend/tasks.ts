@@ -221,7 +221,7 @@ function generateUID() {
     return randomBytes(16).toString('hex');
 }
 
-function getAppDataPath(): string {
+export function getAppDataPath(): string {
     const homeDir = os.homedir();
 
     switch (os.platform()) {

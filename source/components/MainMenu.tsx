@@ -16,6 +16,10 @@ export default function MainMenu({setScreenFunc}:ScreenProps) {
 			callback: () => { console.log("Past Tasks: coming soon!") }
 		},
 		{
+			name: "About",
+			callback: () => { setScreenFunc(Screens.About) }
+		},
+		{
 			name: "Exit",
 			callback: exit
 		},

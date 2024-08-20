@@ -28,6 +28,8 @@ export type Task = {
     parentID?: string
     /** Category of this task */
     category?: Category
+    /** notes for this task over time */
+    notes?: string
 }
 
 export type Category = {
@@ -55,7 +57,8 @@ export enum Priority {
 
 export enum Screens {
 	MainMenu = "main-menu",
-	TaskView = "task-view"
+	TaskView = "task-view",
+    About = "about"
 }
 
 export interface ScreenProps {
