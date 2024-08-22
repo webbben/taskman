@@ -25,7 +25,7 @@ export default function TaskNotes({closeTask, updateNote, notes}: TaskNotesProps
     });
 
     const handleEnter = () => {
-        if (editMode) {
+        if (editMode && curNote != '') {
             // save whatever note text there is
             const finalizedNote = `${dateStr}\n${curNote}`;
             updateNote(finalizedNote);
@@ -53,7 +53,8 @@ export default function TaskNotes({closeTask, updateNote, notes}: TaskNotesProps
                     );
                 }) }
                 { editMode && <Text>{dateStr}</Text>}
-                { editMode && <TextInput value={curNote} onChange={(s) => setCurNote(s)} /> }
+                { editMode && <Box><TextInput value={curNote} onChange={(s) => setCurNote(s)} /></Box> }
+                <Box paddingTop={10}></Box>
             </ScrollArea>
             <Footer actionDescs={[
                 { keyBind: "Enter", shortDesc: editMode ? "Save note" : "Edit note", color: editMode ? "greenBright" : "cyanBright" },

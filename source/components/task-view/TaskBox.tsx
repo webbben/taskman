@@ -1,16 +1,14 @@
 import { Box, Text } from "ink";
 import { Task } from "../../types.js";
 import React, { useEffect, useState } from "react";
+import { isOverdue, isToday } from "../../util.js";
 
 interface TaskBoxProps extends Task {
     selected?: boolean
 }
 
 export default function TaskBox({desc, title, completed, dueDate, selected, subTasks}:TaskBoxProps) {
-
     const [blink, setBlink] = useState(true);
-
-    const overdue = dueDate.getDate() < new Date().getDate();
 
     if (desc) {
         if (desc.length > 100) {
@@ -39,7 +37,7 @@ export default function TaskBox({desc, title, completed, dueDate, selected, subT
             width={"100%"}>
             <Box flexDirection="row" justifyContent="space-between">
                 <Text color={ completed ? "green" : "yellow" }>{title}{ completed && <Text>{" ✓"}</Text> }</Text>
-                <Text color={ overdue ? "red" : "cyan" }>{dueDate.toLocaleDateString()}</Text>
+                <Text color={ isOverdue(dueDate) ? "red" : isToday(dueDate) ? "magenta" : "cyan" }>{dueDate.toLocaleDateString()}</Text>
             </Box>
             { desc && <Text>{desc}</Text> }
             { subTasks && 

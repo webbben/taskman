@@ -4,6 +4,7 @@ import { Task } from "../../types.js";
 import SubTaskTab from "./SubTaskTab.js";
 import { Tab, Tabs } from "ink-tab";
 import TaskNotes from "./TaskNotes.js";
+import { isOverdue, isToday } from "../../util.js";
 
 interface TaskDetailsProps {
     task: Task
@@ -37,7 +38,7 @@ export default function TaskDetails({task, updateTask, closeTask, completeTask}:
 
                 </Text>
                 </Box>
-                <Text>{dueDate.toLocaleDateString()}</Text>
+                <Text color={isOverdue(dueDate) ? "red" : isToday(dueDate) ? "magenta" : "cyan"}>{dueDate.toLocaleDateString()}</Text>
                 { desc && <Text>{desc}</Text> }
                 <Box justifyContent="center">
                     <Tabs onChange={(name) => setCurrentTab(name)} showIndex={false} defaultValue={currentTab}>
