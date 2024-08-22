@@ -19,9 +19,11 @@ export default function TaskDetails({task, updateTask, closeTask, completeTask}:
     const {title, desc, dueDate, subTasks, completed} = task;
 
     const updateNote = (note: string) => {
-        console.log("updating note:", note);
         const taskCopy = {...task};
-        taskCopy.notes = note;
+        if (!taskCopy.notes) {
+            taskCopy.notes = [];
+        }
+        taskCopy.notes.push(note);
         updateTask(taskCopy);
     };
     

@@ -1,25 +1,36 @@
-import { Text } from "ink";
+import { Box, Text } from "ink";
 import React, { useState } from "react";
-import TextArea from "../util/TextArea.js";
 import NavigationController from "../util/NavigationController.js";
 import Footer from "../util/Footer.js";
+import ScrollArea from "../util/ScrollArea.js";
+import TextInput from "ink-text-input";
 
 interface TaskNotesProps {
     closeTask: () => void
     updateNote: (note: string) => void
-    notes?: string
+    notes?: string[]
 }
 
 export default function TaskNotes({closeTask, updateNote, notes}: TaskNotesProps) {
-    const [noteText, setNoteText] = useState(notes || '');
+    const [curNote, setCurNote] = useState<string>('');
     const [editMode, setEditMode] = useState(false);
+
+    const dateStr = new Date().toLocaleString('en-US', {
+        month: 'numeric',
+        day: 'numeric',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: true
+    });
 
     const handleEnter = () => {
         if (editMode) {
             // save whatever note text there is
-            updateNote(noteText);
+            const finalizedNote = `${dateStr}\n${curNote}`;
+            updateNote(finalizedNote);
         }
-
+        setCurNote('');
         setEditMode((e) => !e);
     };
 
@@ -33,15 +44,17 @@ export default function TaskNotes({closeTask, updateNote, notes}: TaskNotesProps
                     }]
                 ])} />
             <Text>Notes</Text>
-            <TextArea 
-                height={10} 
-                value={noteText} 
-                onChange={(v) => setNoteText(v)}
-                borderProps={{
-                    borderStyle: "double"
-                }}
-                onSubmit={() => setEditMode(false)}
-                editMode={editMode} />
+            <ScrollArea height={10} borderStyle={"double"}>
+                { notes && notes.map((n: string, i) => {
+                    return (
+                        <Box paddingBottom={1} key={"note_" + i}>
+                            <Text>{n}</Text>
+                        </Box>
+                    );
+                }) }
+                { editMode && <Text>{dateStr}</Text>}
+                { editMode && <TextInput value={curNote} onChange={(s) => setCurNote(s)} /> }
+            </ScrollArea>
             <Footer actionDescs={[
                 { keyBind: "Enter", shortDesc: editMode ? "Save note" : "Edit note", color: editMode ? "greenBright" : "cyanBright" },
                 (!editMode ? { keyBind: "Q", shortDesc: "go back", color: "gray" } : { keyBind: "", shortDesc: "", color: "gray"})

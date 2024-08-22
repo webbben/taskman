@@ -58,7 +58,6 @@ export function saveTasks(tasks: Task[]) {
 }
 
 export function updateAndSaveSingleTask(task: Task, currentTasks: Task[]) {
-    console.log("updating single task...");
     const success = findTaskAndApplyAction(task.id, currentTasks, (t: Task) => {
         for (const key in task) {
             if (task.hasOwnProperty(key)) {

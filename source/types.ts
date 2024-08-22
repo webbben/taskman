@@ -29,7 +29,7 @@ export type Task = {
     /** Category of this task */
     category?: Category
     /** notes for this task over time */
-    notes?: string
+    notes?: string[]
 }
 
 export type Category = {
