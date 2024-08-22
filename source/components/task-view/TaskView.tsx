@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Box } from "ink";
 import { Priority, ScreenProps, Task } from "../../types.js";
-import { createNewTask, deleteTask, loadTasks, subtaskCount, toggleCompleteTask } from "../../backend/tasks.js";
+import { createNewTask, deleteTask, loadTasks, subtaskCount, toggleCompleteTask, updateAndSaveSingleTask } from "../../backend/tasks.js";
 import TaskTab from "./TaskTab.js";
 import { Tab, Tabs } from "ink-tab";
 import Footer from "../util/Footer.js";
@@ -126,15 +126,21 @@ export default function TaskView({setScreenFunc}:ScreenProps) {
             setShowingDialog(false);
         };
         return (
-            <SelectInput 
-                {...selectInputProps} />
+            <SelectInput {...selectInputProps} />
         );
     }
 
+    const updateTask = (t: Task) => {
+        const tasksCopy = [...tasks];
+        updateAndSaveSingleTask(t, tasksCopy);
+        setTasks(tasksCopy);
+    };
+
     if (openedTask) {
         return (
-            <TaskDetails 
-                {...openedTask} 
+            <TaskDetails
+                updateTask={updateTask}
+                task={openedTask}
                 closeTask={() => setOpenedTask(undefined)}
                 completeTask={compTaskCallback} />
         );

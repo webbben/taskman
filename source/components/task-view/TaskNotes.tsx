@@ -4,18 +4,34 @@ import TextArea from "../util/TextArea.js";
 import NavigationController from "../util/NavigationController.js";
 import Footer from "../util/Footer.js";
 
-export default function TaskNotes() {
-    const [noteText, setNoteText] = useState('');
+interface TaskNotesProps {
+    closeTask: () => void
+    updateNote: (note: string) => void
+    notes?: string
+}
+
+export default function TaskNotes({closeTask, updateNote, notes}: TaskNotesProps) {
+    const [noteText, setNoteText] = useState(notes || '');
     const [editMode, setEditMode] = useState(false);
+
+    const handleEnter = () => {
+        if (editMode) {
+            // save whatever note text there is
+            updateNote(noteText);
+        }
+
+        setEditMode((e) => !e);
+    };
 
     return (
         <>
             <NavigationController
-                onEnter={() => {
-                    if (!editMode) {
-                        setEditMode(true);
-                    }
-                }} />
+                onEnter={() => handleEnter()}
+                keyBindings={new Map<string, Function>([
+                    ['q', () => {
+                        if (!editMode) closeTask();
+                    }]
+                ])} />
             <Text>Notes</Text>
             <TextArea 
                 height={10} 
@@ -27,7 +43,8 @@ export default function TaskNotes() {
                 onSubmit={() => setEditMode(false)}
                 editMode={editMode} />
             <Footer actionDescs={[
-                { keyBind: "Enter", shortDesc: editMode ? "Save note" : "Edit note", color: editMode ? "greenBright" : "cyanBright" }
+                { keyBind: "Enter", shortDesc: editMode ? "Save note" : "Edit note", color: editMode ? "greenBright" : "cyanBright" },
+                (!editMode ? { keyBind: "Q", shortDesc: "go back", color: "gray" } : { keyBind: "", shortDesc: "", color: "gray"})
             ]} />
         </>
     );

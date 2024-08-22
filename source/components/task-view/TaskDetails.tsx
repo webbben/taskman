@@ -1,26 +1,32 @@
 import { Box, Text } from "ink";
 import React, { useState } from "react";
 import { Task } from "../../types.js";
-import NavigationController from "../util/NavigationController.js";
 import SubTaskTab from "./SubTaskTab.js";
 import { Tab, Tabs } from "ink-tab";
 import TaskNotes from "./TaskNotes.js";
 
-interface TaskDetailsProps extends Task {
-    closeTask: Function
+interface TaskDetailsProps {
+    task: Task
+    updateTask: (t: Task) => void
+    closeTask: () => void
     parentTask?: Task
     completeTask: (t: Task) => void
 }
 
-export default function TaskDetails({title, desc, dueDate, subTasks, completed, closeTask, completeTask}: TaskDetailsProps) {
+export default function TaskDetails({task, updateTask, closeTask, completeTask}: TaskDetailsProps) {
     const [currentTab, setCurrentTab] = useState<string>('subtasks');
+
+    const {title, desc, dueDate, subTasks, completed} = task;
+
+    const updateNote = (note: string) => {
+        console.log("updating note:", note);
+        const taskCopy = {...task};
+        taskCopy.notes = note;
+        updateTask(taskCopy);
+    };
     
     return (
         <>
-            <NavigationController
-                keyBindings={new Map<string, Function>([
-                    ['q', closeTask]
-                ])} />
             <Box margin={1} flexDirection="column">
                 <Box flexDirection="row" justifyContent="space-between">
                 <Text color={ completed ? "green" : "yellow" }>
@@ -38,9 +44,9 @@ export default function TaskDetails({title, desc, dueDate, subTasks, completed, 
                     </Tabs>
                 </Box>
                 { currentTab === 'subtasks' && 
-                    <SubTaskTab subTasks={subTasks} completeTask={completeTask} />
+                    <SubTaskTab subTasks={subTasks} completeTask={completeTask} closeTask={closeTask} />
                 }
-                { currentTab === 'tasknotes' && <TaskNotes /> }
+                { currentTab === 'tasknotes' && <TaskNotes closeTask={closeTask} updateNote={updateNote} notes={task.notes} /> }
             </Box>
             
         </>

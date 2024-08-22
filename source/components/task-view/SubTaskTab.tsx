@@ -8,9 +8,10 @@ import Footer from "../util/Footer.js";
 interface SubTaskTabProps {
     subTasks?: Task[]
     completeTask: (t: Task) => void
+    closeTask: () => void
 }
 
-export default function SubTaskTab({subTasks, completeTask}: SubTaskTabProps) {
+export default function SubTaskTab({subTasks, completeTask, closeTask}: SubTaskTabProps) {
     const [rowIndex, setRowIndex] = useState(0);
 
     const getSelectedSubtask = () => {
@@ -30,7 +31,8 @@ export default function SubTaskTab({subTasks, completeTask}: SubTaskTabProps) {
                 vertIndexSetter={setRowIndex}
                 vertIndexMax={subTasks ? subTasks.length - 1 : 0}
                 keyBindings={new Map<string, Function>([
-                    [' ', completeSubTask]
+                    [' ', completeSubTask],
+                    ['q', closeTask]
                 ])} />
             <Box marginLeft={1} marginTop={1} flexDirection='column'>
                 <Box marginBottom={1}><Text>Sub-tasks</Text></Box>
