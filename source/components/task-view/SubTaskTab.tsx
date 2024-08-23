@@ -46,7 +46,6 @@ export default function SubTaskTab({subTasks, completeTask, closeTask}: SubTaskT
                     );
                 }) : <Text>No sub-tasks.</Text>}
                 
-               
             </Box>
             <Footer
                 actionDescs={[
