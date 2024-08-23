@@ -34,8 +34,9 @@ export default function SubTaskTab({subTasks, completeTask, closeTask}: SubTaskT
                     [' ', completeSubTask],
                     ['q', closeTask]
                 ])} />
-            <Box marginLeft={1} marginTop={1} flexDirection='column'>
+            <Box flexDirection='column'>
                 <Box marginBottom={1}><Text>Sub-tasks</Text></Box>
+                
                 { subTasks ? subTasks.map((t, i) => {
                     return (
                         <SubTask 
@@ -44,6 +45,8 @@ export default function SubTaskTab({subTasks, completeTask, closeTask}: SubTaskT
                             selected={rowIndex == i} />
                     );
                 }) : <Text>No sub-tasks.</Text>}
+                
+               
             </Box>
             <Footer
                 actionDescs={[

@@ -9,7 +9,7 @@ interface SubTaskProps extends Task {
 export default function SubTask({title, completed, selected}: SubTaskProps) {
     const color = selected ? "cyanBright" : completed ? "green" : "yellow";
     return (
-            <Box marginBottom={1}>
+            <Box>
                 <Text color={color}>
                     <Text>{selected ? "> " : "  "}{completed ? "✓" : "○"}{ ` ${title}` }</Text>
                 </Text>

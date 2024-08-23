@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Box } from "ink";
 import { Priority, ScreenProps, Task } from "../../types.js";
-import { createNewTask, deleteTask, loadTasks, subtaskCount, toggleCompleteTask, updateAndSaveSingleTask } from "../../backend/tasks.js";
+import { createNewTask, deleteTask, loadTasks, subtaskCount, toggleCompleteTask, updateAndSaveSingleTask, updateTaskPriority } from "../../backend/tasks.js";
 import TaskTab from "./TaskTab.js";
 import { Tab, Tabs } from "ink-tab";
 import Footer from "../util/Footer.js";
@@ -78,6 +78,30 @@ export default function TaskView({setScreenFunc}:ScreenProps) {
         setShowingDialog(true);
     }
 
+    const changeTaskPriorityCallback = (t: Task) => {
+        const titleDisp = t.title.length > 15 ? t.title.substring(0, 15) + "..." : t.title;
+
+        const selectInputProps: SelectInputProps = {
+            prompt: `Select new priority for task (title: ${titleDisp})\n(Current priority: ${t.priority})`,
+            options: [
+                { label: "High", val: Priority.High },
+                { label: "Med", val: Priority.Med },
+                { label: "Low", val: Priority.Low },
+                { label: "(Cancel)", val: '' }
+            ],
+            valueCallback: (v: string) => {
+                if (v == '' || v == t.priority) {
+                    return;
+                }
+                const tasksCopy = [...tasks];
+                updateTaskPriority(t, v as Priority, tasksCopy);
+                setTasks(tasksCopy);
+            }
+        };
+        setDialogProps(selectInputProps);
+        setShowingDialog(true);
+    }
+
     const compTaskCallback = (task: Task) => {
         const tasksCopy = [...tasks];
         toggleCompleteTask(task, tasksCopy, !task.completed);
@@ -121,6 +145,7 @@ export default function TaskView({setScreenFunc}:ScreenProps) {
     if (showingDialog) {
         const selectInputProps = dialogProps as SelectInputProps;
         const oldCallback = selectInputProps.valueCallback;
+        // ensure that the dialog will be closed on callback
         selectInputProps.valueCallback = (v: any) => {
             if (oldCallback) oldCallback(v);
             setShowingDialog(false);
@@ -167,6 +192,7 @@ export default function TaskView({setScreenFunc}:ScreenProps) {
         allTasks: tasks,
         setOpenedTask,
         delTask: deleteTaskCallback,
+        changePriority: changeTaskPriorityCallback,
         compTask: compTaskCallback,
         showCreateTaskForm: () => setCreatingTask(true)
     };
@@ -208,9 +234,10 @@ export default function TaskView({setScreenFunc}:ScreenProps) {
                         {...passTabProps} /> }
                 
                 <Footer actionDescs={[
-                    {shortDesc: "create task", keyBind: "N", color: "magentaBright"},
-                    {shortDesc: "edit task", keyBind: "Enter", color: "cyanBright"},
+                    {shortDesc: "create task", keyBind: "N", color: "blueBright"},
+                    {shortDesc: "view task", keyBind: "Enter", color: "cyanBright"},
                     {shortDesc: "complete task", keyBind: "Space", color: "greenBright"},
+                    {shortDesc: "change priority", keyBind: "P", color: "magentaBright"},
                     {shortDesc: "delete task", keyBind: "X", color: "redBright"},
                     {shortDesc: "back", keyBind: "Q", color: "gray"}
                 ]} />

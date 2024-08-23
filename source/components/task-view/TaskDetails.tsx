@@ -35,7 +35,6 @@ export default function TaskDetails({task, updateTask, closeTask, completeTask}:
                 <Text color={ completed ? "green" : "yellow" }>
                     {title}
                     { completed && <Text>{" ✓"}</Text> }
-
                 </Text>
                 </Box>
                 <Text color={isOverdue(dueDate) ? "red" : isToday(dueDate) ? "magenta" : "cyan"}>{dueDate.toLocaleDateString()}</Text>

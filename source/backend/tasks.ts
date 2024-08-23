@@ -35,6 +35,12 @@ export function loadTasks(): Task[] {
             } else if (task.completionDate) {
                 task.completionDate = new Date(task.completionDate);
             }
+            // notes were originally implemented as a single string instead of string array
+            // so could be some floating around that need converting.
+            if (task.notes && typeof task.notes == 'string') {
+                task.notes = [task.notes];
+                patches++;
+            }
             // if any bad data was fixed, save it to the disk
             if (patches > 0) {
                 saveTasks(taskData);
@@ -64,6 +70,17 @@ export function updateAndSaveSingleTask(task: Task, currentTasks: Task[]) {
                 (t as any)[key] = (task as any)[key];
             }
         }
+    });
+    if (!success) {
+        console.error("task not found:", task.id);
+        return;
+    }
+    saveTasks(currentTasks);
+}
+
+export function updateTaskPriority(task: Task, newPriority: Priority, currentTasks: Task[]) {
+    const success = findTaskAndApplyAction(task.id, currentTasks, (t: Task) => {
+        t.priority = newPriority;
     });
     if (!success) {
         console.error("task not found:", task.id);

@@ -14,10 +14,11 @@ interface TaskTabProps extends ScreenProps {
     setOpenedTask: Function
     showCreateTaskForm: Function
     delTask: (t: Task) => void
+    changePriority: (t: Task) => void
     compTask: (t: Task) => void
 }
 
-export default function TaskTab({tabTasks, setScreenFunc, setOpenedTask, showCreateTaskForm, delTask, compTask}: TaskTabProps) {
+export default function TaskTab({tabTasks, setScreenFunc, setOpenedTask, showCreateTaskForm, delTask, compTask, changePriority}: TaskTabProps) {
 
     const [rowIndex, setRowIndex] = useState(0);
 
@@ -44,6 +45,12 @@ export default function TaskTab({tabTasks, setScreenFunc, setOpenedTask, showCre
         compTask(selectedTask);
     };
 
+    const changePriorityCallback = () => {
+        const selectedTask = getSelectedTask();
+        if (!selectedTask) return;
+        changePriority(selectedTask);
+    }
+
     const deleteTaskCallback = () => {
         const selectedTask = getSelectedTask();
         if (!selectedTask) return;
@@ -60,7 +67,8 @@ export default function TaskTab({tabTasks, setScreenFunc, setOpenedTask, showCre
                     ['q', () => {setScreenFunc(Screens.MainMenu)}],
                     ['n', showCreateTaskForm],
                     [' ', compTaskCallback],
-                    ['x', deleteTaskCallback]
+                    ['x', deleteTaskCallback],
+                    ['p', changePriorityCallback]
                 ])} />
             <Box marginTop={1} flexDirection='column'>
                 { tabTasks.length > 0 ? tabTasks.map((t, i) => {
