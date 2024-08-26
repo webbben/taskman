@@ -9,6 +9,8 @@ interface CreateTaskFormProps {
     onCreateTask?: (task: CreatedTaskInfo) => void
     quitForm: Function
     tasks: Task[]
+    editTask?: Task
+    onEditTask?: (editTaskInfo: CreatedTaskInfo, originalTask: Task) => void
 }
 
 type CreateTaskResult = {
@@ -21,6 +23,7 @@ type CreateTaskResult = {
     newCategoryName?: string
     newCategoryLabel?: string
     newCategoryColor?: CategoryColor
+    /** the name of the category that will be used */
     category?: string
     parentTask?: string
 }
@@ -34,7 +37,7 @@ type CreatedTaskInfo = {
     parentTaskID?: string
 }
 
-export default function CreateTaskForm({onCreateTask, quitForm, tasks}: CreateTaskFormProps) {
+export default function CreateTaskForm({onCreateTask, quitForm, tasks, editTask, onEditTask}: CreateTaskFormProps) {
     const priorityOptions = [
         { label: 'High', value: Priority.High },
         { label: 'Medium', value: Priority.Med },
@@ -158,13 +161,33 @@ export default function CreateTaskForm({onCreateTask, quitForm, tasks}: CreateTa
         }
     };
 
+    const [formState, setFormState] = useState<CreateTaskResult>();
+    useEffect(() => {
+        // if there's an editTask defined, then use it in the form
+        if (editTask) {
+            const editTaskInfo: CreateTaskResult = {
+                priority: editTask.priority,
+                title: editTask.title,
+                desc: editTask.desc,
+                dueDateMonth: editTask.dueDate.getMonth(),
+                dueDateDay: editTask.dueDate.getDate(),
+                dueDateYear: editTask.dueDate.getFullYear(),
+                category: editTask.category?.name,
+                parentTask: editTask.parentID
+            };
+            setFormState(editTaskInfo);
+        }
+    }, []);
+
     return (
         <>
             <NavigationController 
                 keyBindings={new Map<string, Function>([
                     ['q', quitForm]
                 ])} />
-            <Form 
+            <Form
+                value={formState}
+                onChange={(v) => setFormState(v as CreateTaskResult)}
                 {...formProps}
                 onSubmit={(result) => {
                     const r = result as CreateTaskResult;
@@ -174,24 +197,26 @@ export default function CreateTaskForm({onCreateTask, quitForm, tasks}: CreateTa
                         priority: r.priority,
                         dueDate: new Date(r.dueDateYear, r.dueDateMonth - 1, r.dueDateDay)
                     }
-                    if (onCreateTask) {
-                        // handle category creation
-                        if (r.category && r.category != "None") {
-                            createdTaskInfo.category = categories?.find((c) => c.name == r.category);
-                        } else {
-                            if (r.newCategoryName && r.newCategoryLabel && r.newCategoryColor) {
-                                createdTaskInfo.category = {
-                                    name: r.newCategoryName, label: r.newCategoryLabel, color: r.newCategoryColor
-                                }
-                                createNewCategory(categories || [], createdTaskInfo.category);
-                            }
-                        }
-                        if (r.parentTask) {
-                            createdTaskInfo.parentTaskID = r.parentTask;
-                        }
-                        onCreateTask(createdTaskInfo);
+                    // handle category creation
+                    if (r.category && r.category != "None") {
+                        createdTaskInfo.category = categories?.find((c) => c.name == r.category);
                     } else {
-                        console.log(result);
+                        if (r.newCategoryName && r.newCategoryLabel && r.newCategoryColor) {
+                            createdTaskInfo.category = {
+                                name: r.newCategoryName, label: r.newCategoryLabel, color: r.newCategoryColor
+                            }
+                            createNewCategory(categories || [], createdTaskInfo.category);
+                        }
+                    }
+                    if (r.parentTask) {
+                        createdTaskInfo.parentTaskID = r.parentTask;
+                    }
+                    if (onCreateTask) {
+                        onCreateTask(createdTaskInfo);
+                    } else if (onEditTask && editTask) {
+                        onEditTask(createdTaskInfo, editTask);
+                    } else {
+                        console.log(createdTaskInfo);
                     }
                 }} />
             <Text color={"gray"}>Press "Q" to quit</Text>

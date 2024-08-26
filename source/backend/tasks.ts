@@ -28,6 +28,12 @@ export function loadTasks(): Task[] {
         let patches = 0;
         for (const task of taskData) {
             task.dueDate = new Date(task.dueDate);
+            if (task.subTasks) {
+                // sub-tasks technically don't have their own due dates, so make them match the parent task
+                for (const subTask of task.subTasks) {
+                    subTask.dueDate = task.dueDate;
+                }
+            }
             if (task.completed && !task.completionDate) {
                 console.error("warning: completed task doesn't have completion date. setting to today's date.");
                 task.completionDate = new Date();

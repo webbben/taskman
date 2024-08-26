@@ -9,9 +9,11 @@ interface SubTaskTabProps {
     subTasks?: Task[]
     completeTask: (t: Task) => void
     closeTask: () => void
+    deleteTask: (t: Task) => void
+    editTask: (t: Task) => void
 }
 
-export default function SubTaskTab({subTasks, completeTask, closeTask}: SubTaskTabProps) {
+export default function SubTaskTab({subTasks, completeTask, closeTask, deleteTask, editTask}: SubTaskTabProps) {
     const [rowIndex, setRowIndex] = useState(0);
 
     const getSelectedSubtask = () => {
@@ -25,6 +27,18 @@ export default function SubTaskTab({subTasks, completeTask, closeTask}: SubTaskT
         completeTask(subTask);
     };
 
+    const deleteSubTask = () => {
+        const subTask = getSelectedSubtask();
+        if (!subTask) return;
+        deleteTask(subTask);
+    }
+
+    const editSubTask = () => {
+        const subTask = getSelectedSubtask();
+        if (!subTask) return;
+        editTask(subTask);
+    }
+
     return (
         <>
             <NavigationController
@@ -32,7 +46,9 @@ export default function SubTaskTab({subTasks, completeTask, closeTask}: SubTaskT
                 vertIndexMax={subTasks ? subTasks.length - 1 : 0}
                 keyBindings={new Map<string, Function>([
                     [' ', completeSubTask],
-                    ['q', closeTask]
+                    ['q', closeTask],
+                    ['x', deleteSubTask],
+                    ['e', editSubTask]
                 ])} />
             <Box flexDirection='column'>
                 <Box marginBottom={1}><Text>Sub-tasks</Text></Box>
@@ -51,6 +67,7 @@ export default function SubTaskTab({subTasks, completeTask, closeTask}: SubTaskT
                 actionDescs={[
                     { keyBind: "Q", shortDesc: "back", color: "gray" },
                     { keyBind: "Space", shortDesc: "complete subtask", color: "greenBright" },
+                    { keyBind: "E", shortDesc: "edit subtask", color: "cyanBright" },
                     { keyBind: "X", shortDesc: "delete subtask", color: "red" },
                 ]} />
         </>

@@ -17,6 +17,7 @@ export default function TaskView({setScreenFunc}:ScreenProps) {
 
     const [openedTask, setOpenedTask] = useState<Task>();
     const [creatingTask, setCreatingTask] = useState(false);
+    const [editTask, setEditTask] = useState<Task>();
     const [showingDialog, setShowingDialog] = useState(false);
     const [dialogProps, setDialogProps] = useState<Object>({});
 
@@ -161,16 +162,6 @@ export default function TaskView({setScreenFunc}:ScreenProps) {
         setTasks(tasksCopy);
     };
 
-    if (openedTask) {
-        return (
-            <TaskDetails
-                updateTask={updateTask}
-                task={openedTask}
-                closeTask={() => setOpenedTask(undefined)}
-                completeTask={compTaskCallback} />
-        );
-    }
-
     if (creatingTask) {
         return (
             <CreateTaskForm onCreateTask={(ti) => {
@@ -183,6 +174,40 @@ export default function TaskView({setScreenFunc}:ScreenProps) {
             }}
             quitForm={() => setCreatingTask(false)}
             tasks={tasks} />
+        );
+    }
+
+    if (editTask) {
+        return (
+            <CreateTaskForm onEditTask={(ti, ot) => {
+                (async () => {
+                    const tasksCopy = [...tasks];
+                    const updatedTask = {...ot};
+                    updatedTask.category = ti.category;
+                    updatedTask.title = ti.title;
+                    updatedTask.priority = ti.priority;
+                    updatedTask.desc = ti.desc;
+                    updatedTask.dueDate = ti.dueDate;
+                    updatedTask.parentID = ti.parentTaskID;
+                    updateAndSaveSingleTask(updatedTask, tasksCopy);
+                })();
+                setEditTask(undefined);
+            }}
+            editTask={editTask}
+            quitForm={() => setEditTask(undefined)}
+            tasks={tasks} />
+        );
+    }
+
+    if (openedTask) {
+        return (
+            <TaskDetails
+                updateTask={updateTask}
+                task={openedTask}
+                closeTask={() => setOpenedTask(undefined)}
+                completeTask={compTaskCallback}
+                setEditingTask={(t) => setEditTask(t)}
+                deleteTask={deleteTaskCallback} />
         );
     }
 
