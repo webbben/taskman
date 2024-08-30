@@ -4,9 +4,7 @@ This is a terminal application I made for managing tasks. I like the charm of us
 
 ### What does the name mean?
 
-_Originally_ this was supposed to be called taskman. like task manager, but shortened. But alas, that name was taken on NPM, so I couldn't publish it. So I changed it slightly to be "taskmonger". 
-Ya know, like other "monger" words: fishmonger, warmonger, etc. [The definition of monger is: "broker; dealer; peddler"](https://www.merriam-webster.com/dictionary/monger) - as in a dealer or merchant of a certain type of goods.
-Anyway, the word just sounds funny too, doesn't it? That's mainly why I chose it - _monger_, hah! So, if you really stretch the meaning it almost sorta makes sense. An app for dealing tasks? A task brokerage?
+It's kind of a bad name to be honest lol.  I was gonna name this "taskman" (task + manager, but shortened), but alas this name is already claimed on npm. So after a bit of looking around for similar words, I came up with "taskmonger".  Ya know, there are _-monger_ words in general like "fishmonger", "warmonger", etc (not a great comparison now that I write it down...), so I thought "taskmonger" was apt!
 
 ### Future plans:
 
