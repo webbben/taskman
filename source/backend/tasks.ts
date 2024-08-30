@@ -5,6 +5,15 @@ import { randomBytes } from 'crypto';
 import { Category, Priority, Task } from '../types.js';
 
 const appName = 'taskman';
+let taskJsonFilename = 'tasks';
+
+/** FOR UNIT TESTS ONLY
+ * 
+ * Sets the filename that tasks are saved to. Meant for unit testing, so that real tasks aren't overwritten, deleted, etc.
+ */
+export function __setTaskJsonFilename(filename: string) {
+    taskJsonFilename = filename;
+}
 
 export function ensureAppData() {
     const appDataPath = getAppDataPath();
@@ -71,11 +80,19 @@ export function saveTasks(tasks: Task[]) {
 
 export function updateAndSaveSingleTask(task: Task, currentTasks: Task[]) {
     const success = findTaskAndApplyAction(task.id, currentTasks, (t: Task) => {
+        // detect if the date changed, so we can possibly update subtask due dates.
         for (const key in task) {
             if (task.hasOwnProperty(key)) {
                 (t as any)[key] = (task as any)[key];
             }
         }
+        // make sure subtask due dates are not later than the new due date
+        recursiveTaskAction(t, (t1) => {
+            if (t1.dueDate > task.dueDate) {
+                t1.dueDate = task.dueDate;
+            }
+            return true;
+        });
     });
     if (!success) {
         console.error("task not found:", task.id);
@@ -139,8 +156,9 @@ export function subtaskCount(task: Task): number {
  * @param dueDate due date of new task
  * @param desc (OPT) description of new task
  * @param parentID (OPT) ID of parent task, if this is a sub-task
+ * @returns task ID
  */
-export function createNewTask(currentTasks: Task[], title: string, priority: Priority, dueDate: Date, desc?: string, parentID?: string, category?: Category) {
+export function createNewTask(currentTasks: Task[], title: string, priority: Priority, dueDate: Date, desc?: string, parentID?: string, category?: Category): string {
     const task: Task = {
         title,
         priority,
@@ -155,6 +173,12 @@ export function createNewTask(currentTasks: Task[], title: string, priority: Pri
     }
     if (parentID) {
         task.parentID = parentID;
+        // ensure parent task's due date is same or later
+        findTaskAndApplyAction(parentID, currentTasks, (t) => {
+            if (t.dueDate < task.dueDate) {
+                t.dueDate = task.dueDate;
+            }
+        });
     }
     if (category) {
         task.category = category;
@@ -167,6 +191,7 @@ export function createNewTask(currentTasks: Task[], title: string, priority: Pri
     }
     // save new tasks to disk
     saveTasks(currentTasks);
+    return task.id;
 }
 
 function insertTask(tasks: Task[], newTask: Task): boolean {
@@ -232,6 +257,14 @@ function findTaskAndApplyAction(taskID: string, taskList: Task[], callbackAction
     return false;
 }
 
+export function getTask(taskID: string, taskList: Task[]): Task | null {
+    let task: Task | null = null;
+    findTaskAndApplyAction(taskID, taskList, (t) => {
+        task = {...t};
+    });
+    return task;
+}
+
 /**
  * find a specific task (under this branch) and apply an action to it. 
  * @param task task node we will start searching from
@@ -276,7 +309,7 @@ export function getAppDataPath(): string {
 
 function getTasksJsonPath(): string {
     const appDataPath = getAppDataPath();
-    return path.join(appDataPath, "tasks.json");
+    return path.join(appDataPath, `${taskJsonFilename}.json`);
 }
 
 function getCatJsonPath(): string {
