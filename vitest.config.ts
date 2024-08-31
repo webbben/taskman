@@ -7,6 +7,6 @@ export default defineConfig({
     include: ['source/**/*.test.ts'],  // Adjust the glob pattern to match your test file locations
     coverage: {
       reporter: ['text'],
-    },
+    }
   },
 })

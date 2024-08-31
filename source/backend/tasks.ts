@@ -174,11 +174,14 @@ export function createNewTask(currentTasks: Task[], title: string, priority: Pri
     if (parentID) {
         task.parentID = parentID;
         // ensure parent task's due date is same or later
-        findTaskAndApplyAction(parentID, currentTasks, (t) => {
+        if (!findTaskAndApplyAction(parentID, currentTasks, (t) => {
             if (t.dueDate < task.dueDate) {
+                console.log("updating date");
                 t.dueDate = task.dueDate;
             }
-        });
+        })) {
+            console.error("failed to find parent task");
+        }
     }
     if (category) {
         task.category = category;
